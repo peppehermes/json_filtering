@@ -1,5 +1,3 @@
-TEST - DEVELOPER - SICURANEXT
-
 Scrivi una funzione in Python che, dato un oggetto JSON, rimuova un insieme specifico di chiavi, definite in una struttura di configurazione. Tuttavia, per alcune chiavi da rimuovere, è possibile specificare un elenco di eccezioni: se queste eccezioni sono presenti all'interno della chiave da eliminare, devono essere preservate.
 
 Le chiavi da rimuovere e le relative eccezioni sono definite utilizzando la notazione a punti (.) per specificare il percorso all'interno della struttura JSON. La funzione deve supportare strutture JSON annidate e liste di oggetti.

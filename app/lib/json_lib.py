@@ -1,39 +1,35 @@
 from lib.config_lib import get_keep_path, get_remove_path
 
-def recursive_path(path: str, key: str):
-    if path == "":
-        path = f"{key}"
-    else:
-        path = f"{path}.{key}"
+def recursive_path(path: str, key: str) -> str:
+    return f"{path}.{key}" if path else key
 
-    return path
+def should_keep(path: str, keep_path: list) -> bool:
+    return any(k_path in path for k_path in keep_path)
 
-def pop_node(node: dict, key: str, path: str, keep_path: list = [], remove_path: list = []):    
-    for k_path in keep_path:
-        if k_path in path:
-            return
-    
-    for r_path in remove_path:
-        if r_path in path:
-            node.pop(key)
-            return
+def should_remove(path: str, remove_path: list) -> bool:
+    return any(r_path in path for r_path in remove_path)
 
-def filter_node(node: dict, key: str, val: str, path: str, keep_path: list, remove_path: list):
+def pop_node(node: dict, key: str, path: str, keep_path: list, remove_path: list):
+    if not should_keep(path, keep_path) and should_remove(path, remove_path):
+        node.pop(key, None)
+
+def filter_node(node: dict, key: str, val, path: str, keep_path: list, remove_path: list):
     path = recursive_path(path, key)
 
     if isinstance(val, list):
         for item in val:
-            for sub_key, sub_val in item.copy().items():
-                filter_node(item, sub_key, sub_val, path, keep_path, remove_path)
+            if isinstance(item, dict):
+                for sub_key, sub_val in item.copy().items():
+                    filter_node(item, sub_key, sub_val, path, keep_path, remove_path)
+            else:
+                pop_node(node, key, path, keep_path, remove_path)
     elif isinstance(val, dict):
         for sub_key, sub_val in val.copy().items():
             filter_node(val, sub_key, sub_val, path, keep_path, remove_path)
     else:
-        # leaf node
-        path = recursive_path(path, val)
         pop_node(node, key, path, keep_path, remove_path)
 
-def filter_json(json_data: dict, json_filter: dict):
+def filter_json(json_data: dict, json_filter: dict) -> dict:
     """
     Filters a JSON object based on the provided filter data.
     Args:
@@ -44,8 +40,9 @@ def filter_json(json_data: dict, json_filter: dict):
     """
     keep_path = get_keep_path(json_filter)
     remove_path = get_remove_path(json_filter)
+    root_path = ""
 
-    for key, val in json_data.items():
-        filter_node(node=json_data, key=key, val=val, path="", keep_path=keep_path, remove_path=remove_path)
+    for key, val in json_data.copy().items():
+        filter_node(json_data, key, val, root_path, keep_path, remove_path)
 
     return json_data
