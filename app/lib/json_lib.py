@@ -1,48 +1,57 @@
+from dataclasses import dataclass
+from typing import Any, Dict, List, Set
 from lib.config_lib import get_keep_path, get_remove_path
 
-def recursive_path(path: str, key: str) -> str:
-    return f"{path}.{key}" if path else key
+@dataclass
+class FilterConfig:
+    keep_paths: Set[str]
+    remove_paths: Set[str]
 
-def should_keep(path: str, keep_path: list) -> bool:
-    return any(k_path in path for k_path in keep_path)
+    def should_keep(self, path: str) -> bool:
+        return any(path.startswith(k_path) for k_path in self.keep_paths)
+    
+    def should_remove(self, path: str) -> bool:
+        return any(path.startswith(r_path) for r_path in self.remove_paths)
 
-def should_remove(path: str, remove_path: list) -> bool:
-    return any(r_path in path for r_path in remove_path)
+class JsonFilter:
+    def __init__(self, config: FilterConfig):
+        self.config = config
 
-def pop_node(node: dict, key: str, path: str, keep_path: list, remove_path: list):
-    if not should_keep(path, keep_path) and should_remove(path, remove_path):
-        node.pop(key, None)
+    def _build_path(self, parent: str, key: str) -> str:
+        return f"{parent}.{key}" if parent else key
 
-def filter_node(node: dict, key: str, val, path: str, keep_path: list, remove_path: list):
-    path = recursive_path(path, key)
+    def _should_remove_field(self, path: str) -> bool:
+        return not self.config.should_keep(path) and self.config.should_remove(path)
 
-    if isinstance(val, list):
-        for item in val:
+    def _process_node(self, node: Any, path: str, json_node: Dict[str, Any], key: str) -> None:
+        if isinstance(node, dict):
+            self._filter_dict(node, path)
+            if not node:
+                json_node.pop(key)
+        elif isinstance(node, list):
+            self._filter_list(node, path)
+        elif self._should_remove_field(path):
+            json_node.pop(key)
+
+    def _filter_list(self, items: List[Any], parent_path: str) -> None:
+        for item in items:
             if isinstance(item, dict):
-                for sub_key, sub_val in item.copy().items():
-                    filter_node(item, sub_key, sub_val, path, keep_path, remove_path)
-            else:
-                pop_node(node, key, path, keep_path, remove_path)
-    elif isinstance(val, dict):
-        for sub_key, sub_val in val.copy().items():
-            filter_node(val, sub_key, sub_val, path, keep_path, remove_path)
-    else:
-        pop_node(node, key, path, keep_path, remove_path)
+                self._filter_dict(item, parent_path)
 
-def filter_json(json_data: dict, json_filter: dict) -> dict:
-    """
-    Filters a JSON object based on the provided filter data.
-    Args:
-        json_data (dict): The JSON object to be filtered.
-        json_filter (dict): The filter data containing paths to keep or remove.
-    Returns:
-        dict: The filtered JSON object.
-    """
-    keep_path = get_keep_path(json_filter)
-    remove_path = get_remove_path(json_filter)
-    root_path = ""
+    def _filter_dict(self, json_node: Dict[str, Any], parent_path: str = "") -> None:
+        for key, node in list(json_node.items()):
+            current_path = self._build_path(parent_path, key)
+            self._process_node(node, current_path, json_node, key)
 
-    for key, val in json_data.copy().items():
-        filter_node(json_data, key, val, root_path, keep_path, remove_path)
+    def filter(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        filtered_data = data.copy()
+        self._filter_dict(filtered_data)
+        return filtered_data
 
-    return json_data
+def filter_json(json_data: Dict[str, Any], json_filter: Dict[str, List[str]]) -> Dict[str, Any]:
+    config = FilterConfig(
+        keep_paths=set(get_keep_path(json_filter)),
+        remove_paths=set(get_remove_path(json_filter))
+    )
+
+    return JsonFilter(config).filter(json_data)

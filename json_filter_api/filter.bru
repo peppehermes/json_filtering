@@ -1,0 +1,121 @@
+meta {
+  name: filter
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://127.0.0.1:8000/filter
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+     "data": {
+        "batters": {
+           "batter": [
+              {
+                 "id": "1001",
+                 "kind": "red",
+                 "type": "Regular"
+              },
+              {
+                 "id": "1002",
+                 "kind": "blue",
+                 "type": "Chocolate"
+              },
+              {
+                 "id": "1003",
+                 "kind": "green",
+                 "type": "Blueberry"
+              },
+              {
+                 "id": "1004",
+                 "kind": "yellow",
+                 "type": "Devil's Food"
+              }
+           ],
+           "name": "world"
+        },
+        "devices": [
+           {
+              "components": {
+                 "lists": [
+                    {
+                       "foo": "bar",
+                       "name": "Sugar"
+                    },
+                    {
+                       "foo": "pub",
+                       "name": "Maple"
+                    }
+                 ]
+              }
+           }
+        ],
+        "host": {
+           "id": "1",
+           "name": "test"
+        },
+        "id": "0001",
+        "machine": {
+           "os": "test",
+           "seq": "1"
+        },
+        "name": "Cake",
+        "ppu": [
+           {
+              "id": "1"
+           },
+           {
+              "id": "2"
+           }
+        ],
+        "topping": [
+           {
+              "id": "5001",
+              "type": "None"
+           },
+           {
+              "id": "5002",
+              "type": "Glazed"
+           },
+           {
+              "id": "5005",
+              "type": "Sugar"
+           },
+           {
+              "id": "5007",
+              "type": "Powdered Sugar"
+           },
+           {
+              "id": "5006",
+              "type": "Chocolate with Sprinkles"
+           },
+           {
+              "id": "5003",
+              "type": "Chocolate"
+           },
+           {
+              "id": "5004",
+              "type": "Maple"
+           }
+        ],
+        "type": "donut"
+     },
+     "filter": {
+        "batters": [
+           "batter.id",
+           "batter.kind"
+        ],
+        "devices.components": [
+           "lists.name"
+        ],
+        "host": [
+           "name"
+        ],
+        "machine.os": []
+     }
+  }
+}
