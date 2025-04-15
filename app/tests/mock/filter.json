@@ -1,0 +1,6 @@
+{
+  "host": ["name"],
+  "batters": ["batter.id", "batter.kind"],
+  "machine.os": [],
+  "devices.components": ["lists.name"]
+}

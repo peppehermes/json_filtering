@@ -1,0 +1,83 @@
+{
+    "id": "0001",
+    "type": "donut",
+    "name": "Cake",
+    "ppu": [
+      {
+        "id": "1"
+      },
+      {
+        "id": "2"
+      }
+    ],
+    "batters": {
+      "batter": [
+        {
+          "id": "1001",
+          "kind": "red"
+        },
+        {
+          "id": "1002",
+          "kind": "blue"
+        },
+        {
+          "id": "1003",
+          "kind": "green"
+        },
+        {
+          "id": "1004",
+          "kind": "yellow"
+        }
+      ]
+    },
+    "topping": [
+      {
+        "id": "5001",
+        "type": "None"
+      },
+      {
+        "id": "5002",
+        "type": "Glazed"
+      },
+      {
+        "id": "5005",
+        "type": "Sugar"
+      },
+      {
+        "id": "5007",
+        "type": "Powdered Sugar"
+      },
+      {
+        "id": "5006",
+        "type": "Chocolate with Sprinkles"
+      },
+      {
+        "id": "5003",
+        "type": "Chocolate"
+      },
+      {
+        "id": "5004",
+        "type": "Maple"
+      }
+    ],
+    "host": {
+      "name": "test"
+    },
+    "machine": {
+      "seq": "1"
+    },
+    "devices": [
+      {
+        "components": {
+          "lists": [
+            {
+              "name": "Sugar"
+            },
+            {
+              "name": "Maple"
+            }
+          ]
+        }
+      }
+    ]
+  }
